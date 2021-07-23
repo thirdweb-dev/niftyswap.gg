@@ -1,13 +1,12 @@
-import dotenv from 'dotenv'
-dotenv.config()
-
-import "@typechain/hardhat";
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-etherscan";
 
 import { HardhatUserConfig } from "hardhat/config";
 import { NetworkUserConfig } from "hardhat/types";
+
+import dotenv from 'dotenv'
+dotenv.config()
 
 const chainIds = {
   ganache: 1337,
@@ -62,10 +61,7 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  typechain: {
-    outDir: "typechain",
-    target: "ethers-v5",
-  },
+
   abiExporter: {
     flat: true,
   },

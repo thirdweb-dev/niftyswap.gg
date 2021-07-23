@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 contract NiftySwap {
   
-  uint public currentSwapId;
+  uint public nextSwapId;
   
   struct TradeableNFT {
     address ownerAtTrade;
@@ -25,9 +25,19 @@ contract NiftySwap {
   mapping(uint => mapping(uint => bool)) public interestInTrade;
 
   /// @dev Events.
-  event AvailableForTrade(address indexed owner, address indexed nftContract, uint tokenId, uint swapId);
+  event AvailableForTrade(address indexed owner, address indexed nftContract, uint indexed tokenId, uint swapId);
   event InterestInTrade(uint indexed swapIdOfWanted, uint indexed swapIdToTrade);
-  event Trade(address indexed nftWanted, uint tokenIdOfWanted, address ownerOfWanted, address indexed nftTraded, uint tokenIdOfTraded, address ownerOfTraded);
+  event Trade(
+      address indexed nftWanted,
+      uint tokenIdOfWanted,
+      address ownerOfWanted,
+      uint swapIdOfWanted,
+
+      address indexed nftTraded,
+      uint tokenIdOfTraded,
+      address ownerOfTraded,
+      uint swapIdToTrade
+    );
 
   modifier onlyTradeable(address _nftContract, uint _tokenId) {
 
@@ -76,7 +86,7 @@ contract NiftySwap {
       IERC721(
         tradeableNFT[_swapIdNftToTrade].nftContract
       ).ownerOf(tradeableNFT[_swapIdNftToTrade].nftTokenId) == msg.sender,
-      "NiftySwap: Cannot trade an NFT you do not own."
+      "NiftySwap: Cannot trade an NFT you did not own when it was put up for trade."
     );
 
     require(
@@ -121,12 +131,12 @@ contract NiftySwap {
   function signalInterest(uint _swapIdNftWanted, uint _swapIdNftToTrade, bool _interest) external {
 
     require(
-      _swapIdNftWanted <= currentSwapId && _swapIdNftToTrade <= currentSwapId,
+      _swapIdNftWanted < nextSwapId && _swapIdNftToTrade < nextSwapId,
       "NiftySwap: Invalid swap ID provided."
     );
     require(
       tradeableNFT[_swapIdNftToTrade].ownerAtTrade == msg.sender, 
-      "NiftySwap: Cannot signal interest to trade an NFT you do not own."
+      "NiftySwap: Cannot signal interest to trade an NFT you do not own or did not put up for sale."
     );
 
     // If both parties signal interest, swap the NFTs.
@@ -147,14 +157,14 @@ contract NiftySwap {
   function trade(uint _swapIdNftWanted, uint _swapIdNftToTrade) internal onlyValidTrade(_swapIdNftWanted, _swapIdNftToTrade) {
 
     // Transfer NFT to trade.
-    IERC721(tradeableNFT[_swapIdNftToTrade].nftContract).safeTransferFrom(
+    IERC721(tradeableNFT[_swapIdNftToTrade].nftContract).transferFrom(
       tradeableNFT[_swapIdNftToTrade].ownerAtTrade,
       tradeableNFT[_swapIdNftWanted].ownerAtTrade,
       tradeableNFT[_swapIdNftToTrade].nftTokenId
     );
 
     // Transfer NFT wanted.
-    IERC721(tradeableNFT[_swapIdNftWanted].nftContract).safeTransferFrom(
+    IERC721(tradeableNFT[_swapIdNftWanted].nftContract).transferFrom(
       tradeableNFT[_swapIdNftWanted].ownerAtTrade,
       tradeableNFT[_swapIdNftToTrade].ownerAtTrade,
       tradeableNFT[_swapIdNftWanted].nftTokenId
@@ -163,16 +173,18 @@ contract NiftySwap {
     emit Trade(
       tradeableNFT[_swapIdNftWanted].nftContract,
       tradeableNFT[_swapIdNftWanted].nftTokenId, 
-      tradeableNFT[_swapIdNftWanted].ownerAtTrade, 
+      tradeableNFT[_swapIdNftWanted].ownerAtTrade,
+      _swapIdNftWanted, 
       
       tradeableNFT[_swapIdNftToTrade].nftContract,
       tradeableNFT[_swapIdNftToTrade].nftTokenId, 
-      tradeableNFT[_swapIdNftToTrade].ownerAtTrade
+      tradeableNFT[_swapIdNftToTrade].ownerAtTrade,
+      _swapIdNftToTrade
     );
   }
 
-  function _swapId() internal returns (uint) {
-    currentSwapId++;
-    return currentSwapId;
+  function _swapId() internal returns (uint id) {
+    id = nextSwapId;
+    nextSwapId++;
   }
 }
