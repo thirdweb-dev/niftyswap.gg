@@ -1,13 +1,34 @@
-Clone the repository.
+
+# NiftySwap
+
+Trade NFTs 1-1 without having to escrow your NFTs. UI coming soon.
+
+## Run Locally
+
+Clone the project
 
 ```bash
-git clone https://github.com/nkrishang/hardhat-starter.git
+  git clone https://github.com/nkrishang/niftyswap.gg.git
 ```
 
-Install the dependencies. 
+Go to the project directory
 
 ```bash
-yarn install
+  cd niftyswap.gg
 ```
 
-Write smart contract code in `/contracts`, tests in `/test` and scripts in `/scripts`
+Install dependencies
+
+```bash
+  yarn install
+```
+
+Run tests
+
+```bash
+  npx hardhat test
+```
+
+## Authors
+
+- [@nkrishang](https://www.github.com/nkrishang)
