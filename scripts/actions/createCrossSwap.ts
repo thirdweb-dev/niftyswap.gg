@@ -7,7 +7,7 @@ async function main(): Promise<void> {
   console.log("Deploying NiftySwapFactory with account: ", await deployer.getAddress())
 
   // Deploy contract
-  const niftyswapFactoryAddr: string = "0x818C269aB729CC29d917d73B8be15c9b28eA5e12"
+  const niftyswapFactoryAddr: string = "0x07760bE646C48E6E6De9419DDc13439dF1049742"
   const niftyswapFactory: Contract = await ethers.getContractAt("NiftySwapFactory", niftyswapFactoryAddr);
   
   // Create NiftySwap for NFT

@@ -7,11 +7,11 @@ Trade NFTs 1-1 without having to escrow your NFTs. UI under construction at [htt
 
 ### Rinkeby
 
-- `NiftySwapFactory.sol` : [0x818C269aB729CC29d917d73B8be15c9b28eA5e12](https://rinkeby.etherscan.io/address/0x818C269aB729CC29d917d73B8be15c9b28eA5e12#code)
+- `NiftySwapFactory.sol` : [0x07760bE646C48E6E6De9419DDc13439dF1049742](https://rinkeby.etherscan.io/address/0x07760bE646C48E6E6De9419DDc13439dF1049742#code)
 
-- Example deployment `NiftySwap.sol` : [0xE048E60f81a645A11475524A8CD5C6986530A439](https://rinkeby.etherscan.io/address/0xE048E60f81a645A11475524A8CD5C6986530A439#code)
+- Example deployment `NiftySwap.sol` : [0xB8BDB2135643D1f6A5DE9CbA6b0C027fAB2A1e9b](https://rinkeby.etherscan.io/address/0xB8BDB2135643D1f6A5DE9CbA6b0C027fAB2A1e9b#code)
 
-- Example deployment `CrossNiftySwap.sol` : [0xf724d172A98bF5A91e30F23992844f7887f55772](https://rinkeby.etherscan.io/address/0xf724d172A98bF5A91e30F23992844f7887f55772#code)
+- Example deployment `CrossNiftySwap.sol` : [0xf690a5db6712Ed6ba345bB68e1b32D6B14621713](https://rinkeby.etherscan.io/address/0xf690a5db6712Ed6ba345bB68e1b32D6B14621713#code)
 
 - Test ERC 721 Contract: [0xF3934C55C99a252c9A87162c5b752950863ef23B](https://rinkeby.etherscan.io/address/0xF3934C55C99a252c9A87162c5b752950863ef23B#code)
 
