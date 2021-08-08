@@ -13,6 +13,9 @@ contract NiftySwap {
   /// @dev Token ID of NFT to trade => Token ID of NFT wanted => Interested in trade.
   mapping(uint => mapping(uint => bool)) public interestInTrade;
 
+  /// @dev Token ID of NFT to trade => Token ID of NFT wanted => owner of NFT to trade.
+  mapping(uint => mapping(uint => address)) public ownerAtSignal;
+
   constructor(address _nifty) {
     nifty = IERC721Metadata(_nifty);
   }
@@ -36,12 +39,20 @@ contract NiftySwap {
 
     if(interestInTrade[_tokenIdNftWanted][_tokenIdNftToTrade] && _interest) {
 
-      interestInTrade[_tokenIdNftWanted][_tokenIdNftToTrade] = false;
+      address ownerOfWanted = nifty.ownerOf(_tokenIdNftWanted);
+
+      require(
+        ownerAtSignal[_tokenIdNftWanted][_tokenIdNftToTrade] == ownerOfWanted,
+        "NiftySwap: The owner of the NFT you wanted has changed."
+      );
+
       trade(_tokenIdNftWanted, _tokenIdNftToTrade, msg.sender);
 
     } else {
 
-      interestInTrade[_tokenIdNftToTrade][_tokenIdNftWanted] = true;
+      interestInTrade[_tokenIdNftToTrade][_tokenIdNftWanted] = _interest;
+      ownerAtSignal[_tokenIdNftToTrade][_tokenIdNftWanted] = msg.sender;
+
       emit InterestInTrade(_tokenIdNftWanted, _tokenIdNftToTrade, msg.sender);
 
     }
