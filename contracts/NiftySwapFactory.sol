@@ -36,7 +36,7 @@ contract NiftySwapFactory {
   function createNiftySwap(address _nft) external onlyValidNFT(_nft) {
 
     // Deploy with CREATE2
-    bytes memory niftySwapBytecode = abi.encodePacked(type(NiftySwap).creationCode);
+    bytes memory niftySwapBytecode = abi.encodePacked(type(NiftySwap).creationCode, abi.encode(_nft));
     bytes32 niftySwapSalt = keccak256(abi.encode(block.number, msg.sender));
 
     address niftyswap = Create2.deploy(0, niftySwapSalt, niftySwapBytecode);
@@ -51,7 +51,7 @@ contract NiftySwapFactory {
   function createCrossSwap() external {
     
     // Deploy with CREATE2
-    bytes memory crossSwapBytecode = abi.encodePacked(type(NiftySwap).creationCode);
+    bytes memory crossSwapBytecode = type(CrossNiftySwap).creationCode;
     bytes32 crossSwapSalt = keccak256(abi.encode(block.number, msg.sender));
     
     crossNiftySwap = Create2.deploy(0, crossSwapSalt, crossSwapBytecode);

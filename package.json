@@ -18,5 +18,8 @@
     "hardhat": "^2.4.3",
     "hardhat-abi-exporter": "^2.2.1",
     "ts-node": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.13"
   }
 }

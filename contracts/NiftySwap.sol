@@ -17,7 +17,7 @@ contract NiftySwap {
     nifty = IERC721Metadata(_nifty);
   }
 
-  event InterestInTrade(uint indexed tokenIdOfWanted, uint indexed tokenIdToTrade);
+  event InterestInTrade(uint indexed tokenIdOfWanted, uint indexed tokenIdToTrade, address indexed trader);
   event Trade(address ownerOfNft1, uint indexed tokenId1, address ownerOfNft2, uint indexed tokenId2);
 
   /// @dev Signal interest to trade an NFT you own for an NFT you want. If both parties signal interest, the NFTs are swapped.
@@ -25,6 +25,13 @@ contract NiftySwap {
     require(
       nifty.ownerOf(_tokenIdNftToTrade) == msg.sender, 
       "NiftySwap: Cannot signal interest to trade an NFT you do not own."
+    );
+
+    require(
+      nifty.getApproved(_tokenIdNftToTrade) == address(this) ||
+      
+      nifty.isApprovedForAll(msg.sender, address(this)),
+      "NiftySwap: This contract is no longer approved to transfer the NFT wanted."
     );
 
     if(interestInTrade[_tokenIdNftWanted][_tokenIdNftToTrade] && _interest) {
@@ -35,7 +42,7 @@ contract NiftySwap {
     } else {
 
       interestInTrade[_tokenIdNftToTrade][_tokenIdNftWanted] = true;
-      emit InterestInTrade(_tokenIdNftWanted, _tokenIdNftToTrade);
+      emit InterestInTrade(_tokenIdNftWanted, _tokenIdNftToTrade, msg.sender);
 
     }
   }
