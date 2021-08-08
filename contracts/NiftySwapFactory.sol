@@ -49,6 +49,7 @@ contract NiftySwapFactory {
 
   /// @dev Deploys `crossNiftySwap` for swapping NFTs across NFT collections.
   function createCrossSwap() external {
+    require(crossNiftySwap == address(0), "NiftySwapFactory: Cross NiftySwap already created.");
     
     // Deploy with CREATE2
     bytes memory crossSwapBytecode = type(CrossNiftySwap).creationCode;

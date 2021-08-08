@@ -1,7 +1,17 @@
 
 # NiftySwap
 
-Trade NFTs 1-1 without having to escrow your NFTs. UI coming soon.
+Trade NFTs 1-1 without having to escrow your NFTs. UI under construction at [https://niftyswap-web.vercel.app/](https://niftyswap-web.vercel.app/).
+
+## Deployments
+
+### Rinkeby
+
+- `NiftySwapFactory.sol` :
+- Example deployment `NiftySwap.sol` : 
+- Example deployment `CrossNiftySwap.sol` :
+
+- Test ERC 721 Contract: 
 
 ## Run Locally
 
