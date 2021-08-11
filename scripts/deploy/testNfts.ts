@@ -5,12 +5,12 @@ async function main(): Promise<void> {
 
   // Get deployer
   const [deployer] = await ethers.getSigners();
-  console.log("Deploying NiftySwapFactory with account: ", await deployer.getAddress())
+  console.log("Deploying contract with account: ", await deployer.getAddress())
 
   // Deploy contract
-  const factory: ContractFactory = await ethers.getContractFactory("Apes");
-  const apes: Contract = await factory.deploy();
-  console.log("Deployed test NFT Apes.sol at: ", apes.address);
+  const factory: ContractFactory = await ethers.getContractFactory("CoolCats");
+  const cooCats: Contract = await factory.deploy();
+  console.log("Deployed test NFT CoolCats.sol at: ", cooCats.address);
 }
 
 main()

@@ -13,7 +13,7 @@ Trade NFTs 1-1 without having to escrow your NFTs. UI under construction at [htt
 
 - Example deployment `CrossNiftySwap.sol` : [0xf690a5db6712Ed6ba345bB68e1b32D6B14621713](https://rinkeby.etherscan.io/address/0xf690a5db6712Ed6ba345bB68e1b32D6B14621713#code)
 
-- Test ERC 721 Contract: [0xF3934C55C99a252c9A87162c5b752950863ef23B](https://rinkeby.etherscan.io/address/0xF3934C55C99a252c9A87162c5b752950863ef23B#code)
+- Test ERC 721 Contract: [0xB467a2b26E61fAd4D8B043B79E24c6d4e6Fa5a71](https://rinkeby.etherscan.io/address/0xB467a2b26E61fAd4D8B043B79E24c6d4e6Fa5a71#code)
 
 ## Run Locally
 
