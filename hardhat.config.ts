@@ -1,6 +1,7 @@
 import "@nomiclabs/hardhat-waffle";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-etherscan";
+import "hardhat-contract-sizer";
 
 import { HardhatUserConfig } from "hardhat/config";
 import { NetworkUserConfig } from "hardhat/types";
@@ -46,7 +47,7 @@ const config: HardhatUserConfig = {
     tests: "./test",
   },
   solidity: {
-    version: "0.8.0",
+    version: "0.8.11",
     settings: {
       metadata: {
         // Not including the metadata hash
