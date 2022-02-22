@@ -19,6 +19,7 @@ interface INiftySwap {
         IMultiwrap.WrappedContents bundleOffered;
         IMultiwrap.WrappedContents bundleWanted;
         address offeror;
+        address ownerOfWanted;
     }
 
     event Swapped(uint256 swapId, Swap swapInfo);
@@ -43,12 +44,15 @@ contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
 
     /// @dev Stores an offer.
     function offer(
-        address _offeror,
+        address _ownerOfWanted,
         IMultiwrap.WrappedContents memory _bundleOffered,
         IMultiwrap.WrappedContents memory _bundleWanted
     ) 
         external
     {
+
+        verifyOwnership(msg.sender, _bundleOffered);
+        verifyOwnership(_ownerOfWanted, _bundleWanted);
 
         uint256 id = nextSwapId;
         nextSwapId += 1;
@@ -56,10 +60,11 @@ contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
         swapInfo[id] = Swap({
             bundleOffered: _bundleOffered,
             bundleWanted: _bundleWanted,
-            offeror: _offeror
+            offeror: msg.sender,
+            ownerOfWanted: _ownerOfWanted
         });
 
-        emit Offered(id, _offeror, _bundleOffered, _bundleWanted);
+        emit Offered(id, msg.sender, _bundleOffered, _bundleWanted);
     }
 
     /// @dev Performs a swap between two bundles.
@@ -67,8 +72,13 @@ contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
 
         Swap memory swapInfoForTrade = swapInfo[_swapId];
 
-        transferBundle(swapInfoForTrade.offeror, msg.sender, swapInfoForTrade.bundleOffered);
-        transferBundle(msg.sender, swapInfoForTrade.offeror, swapInfoForTrade.bundleWanted);
+        verifyOwnership(swapInfoForTrade.offeror, swapInfoForTrade.bundleOffered);
+        verifyOwnership(swapInfoForTrade.ownerOfWanted, swapInfoForTrade.bundleWanted);
+
+        require(msg.sender == swapInfoForTrade.ownerOfWanted, "not owner of wanted");
+
+        transferBundle(swapInfoForTrade.offeror, swapInfoForTrade.ownerOfWanted, swapInfoForTrade.bundleOffered);
+        transferBundle(swapInfoForTrade.ownerOfWanted, swapInfoForTrade.offeror, swapInfoForTrade.bundleWanted);
 
         emit Swapped(_swapId, swapInfoForTrade);
     }

@@ -21,6 +21,7 @@
     "hardhat": "^2.4.3",
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-contract-sizer": "^2.4.0",
+    "hardhat-gas-reporter": "^1.0.8",
     "import": "^0.0.6",
     "ts-node": "^10.1.0"
   },

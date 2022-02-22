@@ -74,7 +74,7 @@ describe("Test swaps", function() {
 
         const swapId = await niftyswap.nextSwapId();
         await niftyswap.connect(tokenOwnerA).offer(
-            tokenOwnerA.address,
+            tokenOwnerB.address,
             wrappedContentsOffered,
             wrappedContentsWanted
         )

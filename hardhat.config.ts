@@ -2,6 +2,7 @@ import "@nomiclabs/hardhat-waffle";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-contract-sizer";
+import "hardhat-gas-reporter";
 import "@typechain/hardhat";
 
 import { HardhatUserConfig } from "hardhat/config";
@@ -74,6 +75,12 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: etherscanKey,
+  },
+
+  gasReporter: {
+    coinmarketcap: process.env.REPORT_GAS_COINMARKETCAP_API_KEY,
+    currency: "USD",
+    enabled: true,
   },
 };
 
