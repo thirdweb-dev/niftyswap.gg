@@ -79,7 +79,18 @@ contract NiftySwap is INiftySwap, ERC1155Holder {
         emit Swapped(_swapId, swapInfoForTrade);
     }
 
-     /// @dev Verifies ownership of wrapped contents.
+    /// @dev Returns all swaps; pending and non-pending.
+    function getAllSwaps() external view returns (Swap[] memory allSwaps) {
+        
+        uint256 totalSwaps = nextSwapId;
+        allSwaps = new Swap[](totalSwaps);
+
+        for(uint256 i = 0; i < totalSwaps; i += 1) {
+            allSwaps[i] = swapInfo[i];
+        }
+    }
+
+    /// @dev Verifies ownership of wrapped contents.
     function verifyOwnership(address _party, IMultiwrap.WrappedContents memory _bundle) public view {
         
         uint256 i;
