@@ -9,6 +9,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+import "@thirdweb-dev/contracts/contracts/lib/CurrencyTransferLib.sol";
+
 interface INiftySwap {
 
     struct Swap {
@@ -31,17 +35,12 @@ interface INiftySwap {
     ) external;
 }
 
-contract NiftySwap is INiftySwap, ERC1155Holder {
+contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
     
     uint256 public nextSwapId;
-    IMultiwrap multwrap;
 
     mapping(uint256 => Swap) public swapInfo;
 
-    constructor(address _multiwrap) {
-        multwrap = IMultiwrap(_multiwrap);
-    }
-    
     /// @dev Stores an offer.
     function offer(
         address _offeror,
@@ -68,13 +67,8 @@ contract NiftySwap is INiftySwap, ERC1155Holder {
 
         Swap memory swapInfoForTrade = swapInfo[_swapId];
 
-        verifyOwnership(msg.sender, swapInfoForTrade.bundleWanted);
-
-        uint256 tokenIdOfWrappedOffered = multwrap.wrap(swapInfoForTrade.bundleOffered, 1, "");
-        uint256 tokenIdOfWrappedWanted = multwrap.wrap(swapInfoForTrade.bundleWanted, 1, "");
-
-        multwrap.unwrap(tokenIdOfWrappedOffered, 1, msg.sender);
-        multwrap.unwrap(tokenIdOfWrappedWanted, 1, swapInfoForTrade.offeror);
+        transferBundle(swapInfoForTrade.offeror, msg.sender, swapInfoForTrade.bundleOffered);
+        transferBundle(msg.sender, swapInfoForTrade.offeror, swapInfoForTrade.bundleWanted);
 
         emit Swapped(_swapId, swapInfoForTrade);
     }
@@ -90,13 +84,100 @@ contract NiftySwap is INiftySwap, ERC1155Holder {
         }
     }
 
+    function transferBundle(
+        address _from,
+        address _to,
+        IMultiwrap.WrappedContents memory _wrappedContents
+    ) internal {
+        transfer1155(_from, _to, _wrappedContents);
+        transfer721(_from, _to, _wrappedContents);
+        transfer20(_from, _to, _wrappedContents);
+    }
+
+    function transfer20(
+        address _from,
+        address _to,
+        IMultiwrap.WrappedContents memory _wrappedContents
+    ) internal {
+        uint256 i;
+
+        bool isValidData = _wrappedContents.erc20AssetContracts.length == _wrappedContents.erc20AmountsToWrap.length;
+        require(isValidData, "invalid erc20 wrap");
+        for (i = 0; i < _wrappedContents.erc20AssetContracts.length; i += 1) {
+            CurrencyTransferLib.transferCurrency(
+                _wrappedContents.erc20AssetContracts[i],
+                _from,
+                _to,
+                _wrappedContents.erc20AmountsToWrap[i]
+            );
+        }
+    }
+
+    function transfer721(
+        address _from,
+        address _to,
+        IMultiwrap.WrappedContents memory _wrappedContents
+    ) internal {
+        uint256 i;
+        uint256 j;
+
+        bool isValidData = _wrappedContents.erc721AssetContracts.length == _wrappedContents.erc721TokensToWrap.length;
+        if (isValidData) {
+            for (i = 0; i < _wrappedContents.erc721AssetContracts.length; i += 1) {
+                IERC721 assetContract = IERC721(_wrappedContents.erc721AssetContracts[i]);
+
+                for (j = 0; j < _wrappedContents.erc721TokensToWrap[i].length; j += 1) {
+                    assetContract.safeTransferFrom(_from, _to, _wrappedContents.erc721TokensToWrap[i][j]);
+                }
+            }
+        }
+        require(isValidData, "invalid erc721 wrap");
+    }
+
+    function transfer1155(
+        address _from,
+        address _to,
+        IMultiwrap.WrappedContents memory _wrappedContents
+    ) internal {
+        uint256 i;
+        uint256 j;
+
+        bool isValidData = _wrappedContents.erc1155AssetContracts.length ==
+            _wrappedContents.erc1155TokensToWrap.length &&
+            _wrappedContents.erc1155AssetContracts.length == _wrappedContents.erc1155AmountsToWrap.length;
+
+        if (isValidData) {
+            for (i = 0; i < _wrappedContents.erc1155AssetContracts.length; i += 1) {
+                isValidData =
+                    _wrappedContents.erc1155TokensToWrap[i].length == _wrappedContents.erc1155AmountsToWrap[i].length;
+
+                if (!isValidData) {
+                    break;
+                }
+
+                IERC1155 assetContract = IERC1155(_wrappedContents.erc1155AssetContracts[i]);
+
+                for (j = 0; j < _wrappedContents.erc1155TokensToWrap[i].length; j += 1) {
+                    assetContract.safeTransferFrom(
+                        _from,
+                        _to,
+                        _wrappedContents.erc1155TokensToWrap[i][j],
+                        _wrappedContents.erc1155AmountsToWrap[i][j],
+                        ""
+                    );
+                }
+            }
+        }
+        require(isValidData, "invalid erc1155 wrap");
+    }
+
     /// @dev Verifies ownership of wrapped contents.
     function verifyOwnership(address _party, IMultiwrap.WrappedContents memory _bundle) public view {
         
         uint256 i;
         uint256 j;
 
-        bool  isValidData;
+        bool  isValidData = true;
         
         // ERC1155 tokens
         if(_bundle.erc1155AssetContracts.length != 0) {
@@ -122,9 +203,9 @@ contract NiftySwap is INiftySwap, ERC1155Holder {
 
                 IERC721 assetContract721 = IERC721(_bundle.erc721AssetContracts[i]);
                 
-                for(j = 0; j < _bundle.erc1155TokensToWrap[i].length; j += 1) {
+                for(j = 0; j < _bundle.erc721TokensToWrap[i].length; j += 1) {
                     address owner = assetContract721.ownerOf(_bundle.erc721TokensToWrap[i][j]);
-                    isValidData = owner ==  _party;
+                    isValidData = owner == _party;
 
                     if(!isValidData) {
                         break;

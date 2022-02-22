@@ -2,6 +2,7 @@ import "@nomiclabs/hardhat-waffle";
 import "hardhat-abi-exporter";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-contract-sizer";
+import "@typechain/hardhat";
 
 import { HardhatUserConfig } from "hardhat/config";
 import { NetworkUserConfig } from "hardhat/types";
@@ -61,6 +62,11 @@ const config: HardhatUserConfig = {
         runs: 800,
       },
     },
+  },
+
+  typechain: {
+    outDir: "typechain",
+    target: "ethers-v5",
   },
 
   abiExporter: {
