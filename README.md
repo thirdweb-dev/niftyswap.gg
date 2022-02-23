@@ -6,7 +6,7 @@ Bundle, barter and trade NFTs and tokens with ease. Built with [thirdweb](https:
 ## Deployments
 
 ### Polygon
-- `NiftySwap.sol` : [0x7fbbf852B5a45c1af83B388DDEd315f8434e9b58](https://polygonscan.com/address/0x7fbbf852B5a45c1af83B388DDEd315f8434e9b58)
+- `NiftySwap.sol` : [0xB480d4FF850dEb6a477E51CCD4A57a1Bf26e3B16](https://polygonscan.com/address/0xB480d4FF850dEb6a477E51CCD4A57a1Bf26e3B16)
 
 ## Run Locally
 

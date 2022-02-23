@@ -23,7 +23,6 @@ async function main() {
     console.log("NiftySwap address: ", niftyswap.address);
 
     await verify(niftyswap.address, []);
-    // await verify("0x7fbbf852B5a45c1af83B388DDEd315f8434e9b58", []);
 }
 
 main()
