@@ -215,7 +215,10 @@ contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
                 }
                 
                 IERC1155 assetContract1155 = IERC1155(_bundle.erc1155AssetContracts[i]);
-                isValidData = assetContract1155.isApprovedForAll(msg.sender, address(this));
+                for(j = 0; j < _bundle.erc1155TokensToWrap[i].length; j += 1) {
+                    isValidData = assetContract1155.balanceOf(_party, _bundle.erc1155TokensToWrap[i][j]) >= _bundle.erc1155AmountsToWrap[i][j];
+                }
+                
                 
             }
             require(isValidData, "not owned 1155");

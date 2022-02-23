@@ -15,6 +15,7 @@ describe("Test swaps", function() {
     // Contracts
     let mock721: any;
     let mock20: any;
+    let mock1155: any;
     let niftyswap: NiftySwap;
 
     // Tets params
@@ -29,6 +30,12 @@ describe("Test swaps", function() {
 
         niftyswap = await (await ethers.getContractFactory("NiftySwap")).deploy() as NiftySwap;
 
+        // Deploy Mock ERC1155 + mint
+        mock1155 = await (await ethers.getContractFactory("MockERC1155")).deploy();
+
+        await mock1155.connect(deployer).mint(tokenOwnerA.address, 0, 10, ethers.utils.toUtf8Bytes(""));
+        await mock1155.connect(tokenOwnerA).setApprovalForAll(niftyswap.address, true);
+        
         // Deploy Mock ERC721 + mint
         mock721 = await (await ethers.getContractFactory("MockERC721")).deploy();
         
@@ -44,9 +51,9 @@ describe("Test swaps", function() {
         await mock20.connect(tokenOwnerA).increaseAllowance(niftyswap.address, ethers.utils.parseEther("10"));
 
         wrappedContentsOffered = {
-            erc1155AssetContracts: [],
-            erc1155TokensToWrap: [],
-            erc1155AmountsToWrap: [],
+            erc1155AssetContracts: [mock1155.address],
+            erc1155TokensToWrap: [[0]],
+            erc1155AmountsToWrap: [[10]],
             erc721AssetContracts: [mock721.address],
             erc721TokensToWrap: [[0]],
             erc20AssetContracts: [mock20.address],
@@ -66,6 +73,9 @@ describe("Test swaps", function() {
 
     it("It should swap", async () => {
 
+        expect(await mock1155.balanceOf(tokenOwnerA.address, 0)).to.equal(10);
+        expect(await mock1155.balanceOf(tokenOwnerB.address, 0)).to.equal(0);
+
         expect(await mock721.ownerOf(0)).to.equal(tokenOwnerA.address);
         expect(await mock721.ownerOf(1)).to.equal(tokenOwnerB.address);
 
@@ -80,6 +90,9 @@ describe("Test swaps", function() {
         )
 
         await niftyswap.connect(tokenOwnerB).swap(swapId);
+
+        expect(await mock1155.balanceOf(tokenOwnerA.address, 0)).to.equal(0);
+        expect(await mock1155.balanceOf(tokenOwnerB.address, 0)).to.equal(10);
 
         expect(await mock721.ownerOf(0)).to.equal(tokenOwnerB.address);
         expect(await mock721.ownerOf(1)).to.equal(tokenOwnerA.address);
