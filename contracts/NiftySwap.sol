@@ -38,6 +38,7 @@ interface INiftySwap {
         IMultiwrap.WrappedContents bundleWanted;
         address offeror;
         address ownerOfWanted;
+        bool swapCompleted;
     }
 
     event Swapped(uint256 swapId, Swap swapInfo);
@@ -48,7 +49,7 @@ interface INiftySwap {
 
     /// @dev Stores an offer.
     function offer(
-        address _offeror,
+        address ownerOfWanted,
         IMultiwrap.WrappedContents memory _bundleOffered,
         IMultiwrap.WrappedContents memory _bundleWanted
     ) external;
@@ -79,7 +80,8 @@ contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
             bundleOffered: _bundleOffered,
             bundleWanted: _bundleWanted,
             offeror: msg.sender,
-            ownerOfWanted: _ownerOfWanted
+            ownerOfWanted: _ownerOfWanted,
+            swapCompleted: false
         });
 
         emit Offered(id, msg.sender, _bundleOffered, _bundleWanted);
@@ -89,11 +91,15 @@ contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
     function swap(uint256 _swapId) external {
 
         Swap memory swapInfoForTrade = swapInfo[_swapId];
+        require(!swapInfoForTrade.swapCompleted, "already swapped");
 
         verifyOwnership(swapInfoForTrade.offeror, swapInfoForTrade.bundleOffered);
         verifyOwnership(swapInfoForTrade.ownerOfWanted, swapInfoForTrade.bundleWanted);
 
         require(msg.sender == swapInfoForTrade.ownerOfWanted, "not owner of wanted");
+
+        swapInfoForTrade.swapCompleted = true;
+        swapInfo[_swapId] = swapInfoForTrade;
 
         transferBundle(swapInfoForTrade.offeror, swapInfoForTrade.ownerOfWanted, swapInfoForTrade.bundleOffered);
         transferBundle(swapInfoForTrade.ownerOfWanted, swapInfoForTrade.offeror, swapInfoForTrade.bundleWanted);
@@ -262,6 +268,4 @@ contract NiftySwap is INiftySwap, ReentrancyGuard, ERC1155Holder {
             require(isValidData, "not owned 20");
         }
     }
-
-
 }
